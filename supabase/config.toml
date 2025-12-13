@@ -1,0 +1,7 @@
+project_id = "azhokujqobnkgdkxcrnu"
+
+[functions.chat]
+verify_jwt = false
+
+[functions.evaluate-trade-in]
+verify_jwt = false
