@@ -15,7 +15,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground max-w-md mb-6">
-              Join the sustainable tech revolution. Buy and sell certified refurbished electronics 
+              Join the sustainable tech revolution. Buy and sell certified refurbished electronics
               with confidence. Every purchase extends the life of quality tech.
             </p>
             <div className="flex gap-4">
@@ -66,24 +66,24 @@ export function Footer() {
             <h4 className="font-display font-semibold mb-4">Support</h4>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/help-center" className="text-muted-foreground hover:text-primary transition-colors">
                   Help Center
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/returns-warranty" className="text-muted-foreground hover:text-primary transition-colors">
                   Returns & Warranty
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/quality-promise" className="text-muted-foreground hover:text-primary transition-colors">
                   Quality Promise
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
                   Contact Us
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

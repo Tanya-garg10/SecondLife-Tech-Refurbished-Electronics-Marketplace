@@ -55,8 +55,8 @@ export default function TradeIn() {
   const [evaluation, setEvaluation] = useState<TradeInEvaluation | null>(null);
 
   const handleIssueToggle = (issueId: string) => {
-    setSelectedIssues(prev => 
-      prev.includes(issueId) 
+    setSelectedIssues(prev =>
+      prev.includes(issueId)
         ? prev.filter(id => id !== issueId)
         : [...prev, issueId]
     );
@@ -71,6 +71,7 @@ export default function TradeIn() {
     setIsEvaluating(true);
 
     try {
+      // Try Supabase function first
       const { data, error } = await supabase.functions.invoke('evaluate-trade-in', {
         body: {
           deviceType,
@@ -82,16 +83,74 @@ export default function TradeIn() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.warn('Supabase function error, using demo mode:', error);
+        // Fallback to demo mode
+        const demoEvaluation = generateDemoEvaluation();
+        setEvaluation(demoEvaluation);
+        setStep(3);
+        toast.info('Using demo mode - AI evaluation unavailable');
+        return;
+      }
 
       setEvaluation(data);
       setStep(3);
     } catch (error) {
       console.error('Evaluation error:', error);
-      toast.error('Failed to evaluate device. Please try again.');
+      // Fallback to demo mode
+      const demoEvaluation = generateDemoEvaluation();
+      setEvaluation(demoEvaluation);
+      setStep(3);
+      toast.info('Using demo mode - AI evaluation unavailable');
     } finally {
       setIsEvaluating(false);
     }
+  };
+
+  const generateDemoEvaluation = (): TradeInEvaluation => {
+    // Calculate base value based on device type and condition
+    let baseValue = 100;
+
+    if (deviceType === 'phone') baseValue = 200;
+    else if (deviceType === 'laptop') baseValue = 300;
+    else if (deviceType === 'accessory') baseValue = 50;
+
+    // Adjust for condition
+    const conditionMultipliers: Record<string, number> = {
+      'like-new': 1.0,
+      'excellent': 0.85,
+      'good': 0.65,
+      'fair': 0.45,
+      'poor': 0.25,
+    };
+
+    const multiplier = conditionMultipliers[condition] || 0.5;
+    const estimatedValue = Math.round(baseValue * multiplier);
+
+    // Adjust for issues
+    const issueDeduction = selectedIssues.length * 10;
+    const finalValue = Math.max(20, estimatedValue - issueDeduction);
+
+    // Calculate condition score
+    const conditionScore = Math.round(multiplier * 100) - (selectedIssues.length * 5);
+
+    // Determine market demand
+    let marketDemand: 'low' | 'medium' | 'high' = 'medium';
+    if (condition === 'like-new' || condition === 'excellent') marketDemand = 'high';
+    else if (condition === 'poor') marketDemand = 'low';
+
+    return {
+      estimatedValue: finalValue,
+      conditionScore: Math.max(10, Math.min(100, conditionScore)),
+      explanation: `Based on your ${brand} ${model} in ${condition} condition${selectedIssues.length > 0 ? ' with reported issues' : ''}, we've calculated a fair market value. This device type has ${marketDemand} demand in the refurbished market.`,
+      recommendations: [
+        'Include original box and accessories to increase value',
+        'Factory reset the device before shipping',
+        selectedIssues.length > 0 ? 'Consider getting repairs done to increase trade-in value' : 'Keep the device in good condition until shipping',
+        'Take clear photos of the device for documentation'
+      ].slice(0, 3),
+      marketDemand,
+    };
   };
 
   const getDemandColor = (demand: string) => {
@@ -126,19 +185,17 @@ export default function TradeIn() {
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-                    step >= s
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`}
+                    }`}
                 >
                   {step > s ? <CheckCircle2 className="h-5 w-5" /> : s}
                 </div>
                 {s < 3 && (
                   <div
-                    className={`w-24 md:w-32 h-1 mx-2 rounded ${
-                      step > s ? 'bg-primary' : 'bg-muted'
-                    }`}
+                    className={`w-24 md:w-32 h-1 mx-2 rounded ${step > s ? 'bg-primary' : 'bg-muted'
+                      }`}
                   />
                 )}
               </div>
@@ -168,15 +225,13 @@ export default function TradeIn() {
                       <button
                         key={type.value}
                         onClick={() => setDeviceType(type.value)}
-                        className={`p-4 rounded-xl border-2 transition-all ${
-                          deviceType === type.value
+                        className={`p-4 rounded-xl border-2 transition-all ${deviceType === type.value
                             ? 'border-primary bg-primary/10'
                             : 'border-border hover:border-primary/50'
-                        }`}
+                          }`}
                       >
-                        <type.icon className={`h-8 w-8 mx-auto mb-2 ${
-                          deviceType === type.value ? 'text-primary' : 'text-muted-foreground'
-                        }`} />
+                        <type.icon className={`h-8 w-8 mx-auto mb-2 ${deviceType === type.value ? 'text-primary' : 'text-muted-foreground'
+                          }`} />
                         <span className="text-sm font-medium">{type.label}</span>
                       </button>
                     ))}
@@ -253,11 +308,10 @@ export default function TradeIn() {
                       <button
                         key={c.value}
                         onClick={() => setCondition(c.value)}
-                        className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
-                          condition === c.value
+                        className={`w-full p-4 rounded-xl border-2 text-left transition-all ${condition === c.value
                             ? 'border-primary bg-primary/10'
                             : 'border-border hover:border-primary/50'
-                        }`}
+                          }`}
                       >
                         <div className="font-medium">{c.label}</div>
                         <div className="text-sm text-muted-foreground">{c.description}</div>
@@ -273,11 +327,10 @@ export default function TradeIn() {
                     {commonIssues.map((issue) => (
                       <div
                         key={issue.id}
-                        className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                          selectedIssues.includes(issue.id)
+                        className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedIssues.includes(issue.id)
                             ? 'border-destructive bg-destructive/10'
                             : 'border-border hover:border-border/80'
-                        }`}
+                          }`}
                         onClick={() => handleIssueToggle(issue.id)}
                       >
                         <Checkbox

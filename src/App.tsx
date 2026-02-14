@@ -10,6 +10,10 @@ import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
 import Dashboard from "./pages/Dashboard";
 import TradeIn from "./pages/TradeIn";
+import HelpCenter from "./pages/HelpCenter";
+import ReturnsWarranty from "./pages/ReturnsWarranty";
+import QualityPromise from "./pages/QualityPromise";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +32,10 @@ const App = () => (
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trade-in" element={<TradeIn />} />
+          <Route path="/help-center" element={<HelpCenter />} />
+          <Route path="/returns-warranty" element={<ReturnsWarranty />} />
+          <Route path="/quality-promise" element={<QualityPromise />} />
+          <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
